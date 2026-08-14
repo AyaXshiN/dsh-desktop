@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>DeepSeek Harness 启动失败</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px;
+      background: radial-gradient(1200px 700px at 50% 0%, #3a1520 0%, #120a0d 60%);
+      color: #f3e3e6;
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      padding: 32px;
+    }
+    .mark {
+      width: 84px; height: 84px; border-radius: 22px;
+      background: linear-gradient(135deg, #e05c6e, #5a1d2a);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; font-weight: 700; color: #fff;
+      box-shadow: 0 10px 40px rgba(224, 92, 110, .3);
+    }
+    h1 { font-size: 20px; font-weight: 600; }
+    .detail {
+      max-width: 720px; text-align: left;
+      font-size: 13px; line-height: 1.8; color: #c9b3b8;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: 16px 20px; width: 100%;
+      white-space: pre-wrap; word-break: break-all;
+    }
+    .actions { display: flex; gap: 14px; }
+    a.btn {
+      text-decoration: none; font-size: 14px;
+      padding: 9px 22px; border-radius: 8px;
+      background: #4d6bfe; color: #fff;
+    }
+    a.btn.ghost { background: rgba(255,255,255,.1); }
+    .tips { font-size: 12px; color: #8a7479; max-width: 720px; text-align: center; line-height: 1.7; }
+  </style>
+</head>
+<body>
+  <div class="mark">!</div>
+  <h1>DeepSeek Harness 未能启动</h1>
+  <div class="detail" id="detail">加载详细信息…</div>
+  <div class="actions">
+    <a class="btn" id="retry" href="dsh-desktop://retry">重试启动</a>
+    <a class="btn ghost" id="logs" href="dsh-desktop://logs">打开日志文件</a>
+  </div>
+  <div class="tips">
+    常见原因：端口被占用（可在"设置"里换端口，例如 3211）、
+    未安装 Node.js、或 $DSH_HOME 下的 profile 配置损坏（可查看日志定位）。
+  </div>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var log = params.get('log') || '(无)';
+      var el = document.getElementById('detail');
+      el.textContent = '启动日志：' + log + '\n\n';
+      el.textContent += '请点击上方按钮重试，或打开日志文件排查问题。';
+      if (window.dshDesktop) {
+        document.getElementById('retry').addEventListener('click', function (e) {
+          e.preventDefault();
+          window.dshDesktop.retryBoot();
+        });
+        document.getElementById('logs').addEventListener('click', function (e) {
+          e.preventDefault();
+          window.dshDesktop.openLogs();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

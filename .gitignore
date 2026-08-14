@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.dsh-smoke/
+.dsh-smoke.log
+.npm-cache/
+.electron-cache/
+.eb-cache/
+.asar-peek/
+*.log

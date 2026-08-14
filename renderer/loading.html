@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>DeepSeek Harness 正在启动</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      background: radial-gradient(1200px 700px at 50% 0%, #16224a 0%, #0b1020 60%);
+      color: #e7ecf7;
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      user-select: none;
+    }
+    .mark {
+      width: 84px; height: 84px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #4d6bfe, #1d2a5a);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; font-weight: 700; color: #fff;
+      box-shadow: 0 10px 40px rgba(77, 107, 254, .35);
+    }
+    h1 { font-size: 19px; font-weight: 600; letter-spacing: .5px; }
+    .hint {
+      font-size: 13px; color: #8b96b5; max-width: 560px; text-align: center;
+      line-height: 1.7; word-break: break-all;
+    }
+    .spinner {
+      width: 22px; height: 22px;
+      border: 3px solid rgba(255,255,255,.15);
+      border-top-color: #4d6bfe;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="mark">DSH</div>
+  <h1>DeepSeek Harness 正在启动…</h1>
+  <div class="spinner"></div>
+  <div class="hint" id="status">正在本机拉起 dsh web 服务，首次启动可能需要几十秒</div>
+  <script>
+    (function () {
+      var el = document.getElementById('status');
+      if (window.dshDesktop && window.dshDesktop.onProgress) {
+        window.dshDesktop.onProgress(function (line) {
+          el.textContent = String(line || '');
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>DeepSeek Harness 设置</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      background: #0e1322; color: #e7ecf7; font-size: 13px;
+      padding: 20px 22px 28px; user-select: none;
+    }
+    h1 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .sub { color: #8b96b5; font-size: 12px; margin-bottom: 18px; }
+    section { margin-bottom: 20px; }
+    h2 {
+      font-size: 12px; font-weight: 600; color: #7f8dc0;
+      text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,.07); padding-bottom: 6px;
+    }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 8px 0; }
+    .row .label { display: flex; flex-direction: column; gap: 2px; }
+    .row .hint { color: #77819f; font-size: 11px; }
+    .row input[type="text"], .row input[type="number"] {
+      width: 220px; background: #161d33; color: #e7ecf7;
+      border: 1px solid #2a3557; border-radius: 7px; padding: 7px 10px; font-size: 13px;
+      outline: none;
+    }
+    .row input:focus { border-color: #4d6bfe; }
+    .pick { display: flex; gap: 8px; align-items: center; flex: 1; min-width: 0; }
+    .pick input { flex: 1; width: auto; }
+    button {
+      background: #4d6bfe; color: #fff; border: none; border-radius: 7px;
+      padding: 7px 14px; font-size: 12px; cursor: pointer;
+    }
+    button.ghost { background: #232b47; }
+    button:hover { filter: brightness(1.1); }
+    .switch { position: relative; width: 40px; height: 22px; flex: none; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; inset: 0; border-radius: 22px; background: #2a3557;
+      transition: .2s; cursor: pointer;
+    }
+    .slider::before {
+      content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%;
+      left: 3px; top: 3px; background: #aeb8d8; transition: .2s;
+    }
+    .switch input:checked + .slider { background: #4d6bfe; }
+    .switch input:checked + .slider::before { transform: translateX(18px); background: #fff; }
+    .status { color: #8b96b5; font-size: 12px; min-height: 16px; margin-top: 4px; }
+    .footer { display: flex; gap: 10px; margin-top: 6px; }
+    .badge { color: #6f7aa0; font-size: 11px; margin-left: 8px; }
+  </style>
+</head>
+<body>
+  <h1>DeepSeek Harness 设置<span class="badge" id="version"></span></h1>
+  <div class="sub">桌面端本地设置，保存于应用数据目录 settings.json</div>
+
+  <section>
+    <h2>常规</h2>
+    <label class="row">
+      <span class="label">开机自启<span class="hint">登录 Windows 后自动启动（仅安装版生效）</span></span>
+      <span class="switch"><input type="checkbox" id="autoLaunch"><span class="slider"></span></span>
+    </label>
+    <label class="row">
+      <span class="label">关闭窗口时最小化到托盘<span class="hint">点 × 不退出，从托盘图标恢复</span></span>
+      <span class="switch"><input type="checkbox" id="closeToTray"><span class="slider"></span></span>
+    </label>
+    <label class="row">
+      <span class="label">桌面通知<span class="hint">任务完成 / 出错时弹系统通知</span></span>
+      <span class="switch"><input type="checkbox" id="notifications"><span class="slider"></span></span>
+    </label>
+  </section>
+
+  <section>
+    <h2>启动</h2>
+    <label class="row">
+      <span class="label">端口<span class="hint">dsh web 监听端口，重启应用生效</span></span>
+      <input type="number" id="port" min="1" max="65535">
+    </label>
+    <div class="row">
+      <span class="label">工作目录<span class="hint">DSH workspace 根目录，重启应用生效</span></span>
+      <div class="pick">
+        <input type="text" id="workspace" placeholder="留空 = 用户主目录">
+        <button class="ghost" id="pickDir">选择…</button>
+      </div>
+    </div>
+    <label class="row">
+      <span class="label">全局快捷键<span class="hint">显示 / 隐藏主窗口，如 CommandOrControl+Alt+D</span></span>
+      <input type="text" id="shortcut">
+    </label>
+  </section>
+
+  <section>
+    <h2>更新</h2>
+    <label class="row">
+      <span class="label">自动检查更新<span class="hint">启动时后台检查 GitHub Releases（仅安装版）</span></span>
+      <span class="switch"><input type="checkbox" id="autoUpdate"><span class="slider"></span></span>
+    </label>
+    <label class="row">
+      <span class="label">更新代理<span class="hint">GitHub 无法直连时填写，如 http://127.0.0.1:7890</span></span>
+      <input type="text" id="proxy" placeholder="留空 = 系统代理">
+    </label>
+    <div class="footer">
+      <button id="checkUpdates">检查更新</button>
+      <span class="status" id="updateStatus"></span>
+    </div>
+  </section>
+
+  <section>
+    <h2>诊断</h2>
+    <div class="footer">
+      <button class="ghost" id="openLogs">打开日志文件</button>
+      <button class="ghost" id="quit">退出应用</button>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var $ = function (id) { return document.getElementById(id); };
+      var api = window.dshDesktop;
+      if (!api) {
+        document.body.innerHTML = '<p style="padding:40px;text-align:center">预加载未生效，请从应用菜单打开设置。</p>';
+        return;
+      }
+
+      api.appInfo().then(function (info) {
+        $('version').textContent = 'v' + info.version;
+      });
+
+      api.settings.get().then(apply);
+
+      function apply(s) {
+        $('autoLaunch').checked = !!s.autoLaunch;
+        $('closeToTray').checked = !!s.closeToTray;
+        $('notifications').checked = !!s.notifications;
+        $('port').value = s.port;
+        $('workspace').value = s.workspace || '';
+        $('shortcut').value = s.shortcut;
+        $('autoUpdate').checked = !!s.autoUpdate;
+        $('proxy').value = s.proxy || '';
+      }
+
+      function save(key, value) {
+        var patch = {};
+        patch[key] = value;
+        api.settings.set(patch).then(apply);
+      }
+
+      $('autoLaunch').addEventListener('change', function () { save('autoLaunch', this.checked); });
+      $('closeToTray').addEventListener('change', function () { save('closeToTray', this.checked); });
+      $('notifications').addEventListener('change', function () { save('notifications', this.checked); });
+      $('autoUpdate').addEventListener('change', function () { save('autoUpdate', this.checked); });
+      $('port').addEventListener('change', function () {
+        var n = parseInt(this.value, 10);
+        save('port', Number.isInteger(n) && n > 0 && n < 65536 ? n : 3210);
+      });
+      $('workspace').addEventListener('change', function () { save('workspace', this.value.trim()); });
+      $('shortcut').addEventListener('change', function () { save('shortcut', this.value.trim()); });
+      $('proxy').addEventListener('change', function () { save('proxy', this.value.trim()); });
+
+      $('pickDir').addEventListener('click', function () {
+        api.pickDirectory().then(function (dir) {
+          if (dir) { $('workspace').value = dir; save('workspace', dir); }
+        });
+      });
+      $('openLogs').addEventListener('click', function () { api.openLogs(); });
+      $('quit').addEventListener('click', function () { api.quit(); });
+      $('checkUpdates').addEventListener('click', function () {
+        $('updateStatus').textContent = '正在检查…';
+        api.checkUpdates();
+        setTimeout(function () { $('updateStatus').textContent = ''; }, 4000);
+      });
+    })();
+  </script>
+</body>
+</html>
